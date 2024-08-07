@@ -187,27 +187,27 @@ while True:
         if event.type == pygame.KEYDOWN:
             # Controls for the first game (using arrow keys)
             if event.key == pygame.K_UP:
-                game1.rotate()
+                game2.rotate()
             if event.key == pygame.K_DOWN:
                 pressing_down1 = True
             if event.key == pygame.K_LEFT:
-                game1.go_side(-1)
+                game2.go_side(-1)
             if event.key == pygame.K_RIGHT:
-                game1.go_side(1)
+                game2.go_side(1)
             if event.key == pygame.K_SPACE:
-                game1.go_space()
+                game2.go_space()
 
             # Controls for the second game (using WASD keys)
             if event.key == pygame.K_w:
-                game2.rotate()
+                game1.rotate()
             if event.key == pygame.K_s:
                 pressing_down2 = True
             if event.key == pygame.K_a:
-                game2.go_side(-1)
+                game1.go_side(-1)
             if event.key == pygame.K_d:
-                game2.go_side(1)
+                game1.go_side(1)
             if event.key == pygame.K_q:  # Use 'Q' for space (or any other key if you prefer)
-                game2.go_space()
+                game1.go_space()
 
             if event.key == pygame.K_ESCAPE:
                 game1.__init__(20, 10)
