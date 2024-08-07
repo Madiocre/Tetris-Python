@@ -189,7 +189,7 @@ while True:
             if event.key == pygame.K_UP:
                 game2.rotate()
             if event.key == pygame.K_DOWN:
-                pressing_down1 = True
+                pressing_down2 = True
             if event.key == pygame.K_LEFT:
                 game2.go_side(-1)
             if event.key == pygame.K_RIGHT:
@@ -201,7 +201,7 @@ while True:
             if event.key == pygame.K_w:
                 game1.rotate()
             if event.key == pygame.K_s:
-                pressing_down2 = True
+                pressing_down1 = True
             if event.key == pygame.K_a:
                 game1.go_side(-1)
             if event.key == pygame.K_d:
@@ -215,9 +215,9 @@ while True:
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_DOWN:
-                pressing_down1 = False
-            if event.key == pygame.K_s:
                 pressing_down2 = False
+            if event.key == pygame.K_s:
+                pressing_down1 = False
 
     # Fill each game view surface with white
     game_view1.fill(WHITE)

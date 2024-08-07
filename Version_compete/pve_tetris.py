@@ -127,6 +127,38 @@ class Tetris:
         if self.intersects():
             self.figure.rotation = old_rotation
 
+    def get_board_props(self):
+            '''Get properties of the board for AI evaluation'''
+            return [0, 0, 0, 0]  # Placeholder, update based on your properties
+
+    def get_next_states(self):
+        '''Get all possible next states'''
+        states = {}
+        piece_id = self.figure.type
+        rotations = [0, 90, 180, 270]
+
+        for rotation in rotations:
+            piece = self.figure.figures[piece_id][rotation]
+            min_x = min([p % 4 for p in piece])
+            max_x = max([p % 4 for p in piece])
+
+            for x in range(-min_x, self.width - max_x):
+                pos = [x, 0]
+
+                while not self.intersects():
+                    pos[1] += 1
+                pos[1] -= 1
+
+                if pos[1] >= 0:
+                    board = [row[:] for row in self.field]
+                    for i, j in piece:
+                        board[i + pos[1]][j + pos[0]] = self.figure.color
+                    states[(x, rotation)] = self.get_board_props()
+
+        return states
+
+class TetrisBot:
+    pass
 
 # Initialize the game engine
 pygame.init()
