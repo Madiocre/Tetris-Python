@@ -1,5 +1,6 @@
 import pygame
 import random
+import pdb
 
 # Define colors
 colors = [
@@ -127,38 +128,89 @@ class Tetris:
         if self.intersects():
             self.figure.rotation = old_rotation
 
-    def get_board_props(self):
-            '''Get properties of the board for AI evaluation'''
-            return [0, 0, 0, 0]  # Placeholder, update based on your properties
+    
+class TetrisBot:
+    def __init__(self, tetris_game):
+        self.tetris = tetris_game
 
+    def make_move(self):
+        '''Decide and make a move'''
+        if self.tetris.figure is None:
+            return
+
+        # Get all possible next states
+        next_states = self.get_next_states()
+
+        # Simple heuristic: Choose the best move based on a simple evaluation function
+        best_move = None
+        best_score = -float('inf')
+
+        for move, state_props in next_states.items():
+            x, rotation = move
+            score = self.evaluate_state(state_props)
+
+            if score > best_score:
+                best_score = score
+                best_move = move
+
+        if best_move:
+            x, rotation = best_move
+
+            # Apply rotation if needed
+            while self.tetris.figure.rotation != rotation:
+                self.tetris.rotate()
+                if self.tetris.intersects():
+                    self.tetris.rotate()
+                    self.tetris.rotate()
+                    self.tetris.rotate()
+
+            # Move horizontally to the best x position
+            while self.tetris.figure.x < x:
+                self.tetris.go_side(1)
+                if self.tetris.intersects():
+                    self.tetris.go_side(-1)
+                    break
+            while self.tetris.figure.x > x:
+                self.tetris.go_side(-1)
+                if self.tetris.intersects():
+                    self.tetris.go_side(1)
+                    break
+
+            # Drop the piece
+            self.tetris.go_space()
+
+    def evaluate_state(self, state_props):
+        '''Evaluate the state of the board to choose the best move'''
+        # For simplicity, let's return a random score
+        # Replace with your own heuristic for better results
+        return random.randint(1, 100)
     def get_next_states(self):
         '''Get all possible next states'''
         states = {}
-        piece_id = self.figure.type
-        rotations = [0, 90, 180, 270]
+        piece_id = self.tetris.figure.type
+        rotations = [0, 1, 2, 3]
 
         for rotation in rotations:
-            piece = self.figure.figures[piece_id][rotation]
+            piece = self.tetris.figure.figures[piece_id][rotation]
             min_x = min([p % 4 for p in piece])
             max_x = max([p % 4 for p in piece])
 
-            for x in range(-min_x, self.width - max_x):
+            for x in range(-min_x, self.tetris.width - max_x):
                 pos = [x, 0]
 
-                while not self.intersects():
+                # Move piece down as far as possible
+                while not self.tetris.intersects():
                     pos[1] += 1
                 pos[1] -= 1
 
                 if pos[1] >= 0:
-                    board = [row[:] for row in self.field]
+                    board = [row[:] for row in self.tetris.field]
                     for i, j in piece:
-                        board[i + pos[1]][j + pos[0]] = self.figure.color
-                    states[(x, rotation)] = self.get_board_props()
+                        board[i + pos[1]][j + pos[0]] = self.tetris.figure.color
+                    # Store the state and its properties
+                    states[(x, rotation)] = self.tetris.get_board_props()
 
         return states
-
-class TetrisBot:
-    pass
 
 # Initialize the game engine
 pygame.init()
@@ -176,7 +228,7 @@ VIEW_HEIGHT = WINDOW_HEIGHT
 
 # Create the main window
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption("PVP Tetris")
+pygame.display.set_caption("PVE Tetris")
 
 # Create surfaces for each game view
 game_view1 = pygame.Surface((VIEW_WIDTH, VIEW_HEIGHT))
@@ -185,6 +237,7 @@ game_view2 = pygame.Surface((VIEW_WIDTH, VIEW_HEIGHT))
 # Instantiate two games
 game1 = Tetris(20, 10)
 game2 = Tetris(20, 10)
+bot = TetrisBot(game2)
 
 # Initialize game variables
 clock = pygame.time.Clock()
@@ -204,6 +257,7 @@ while True:
     if counter > 100000:
         counter = 0
 
+    bot.make_move()
     # Update both games
     if counter % (fps // game1.level // 2) == 0 or pressing_down1:
         if game1.state == "start":
@@ -229,17 +283,17 @@ while True:
             if event.key == pygame.K_SPACE:
                 game1.go_space()
 
-            # Controls for the second game (using WASD keys)
-            if event.key == pygame.K_w:
-                game2.rotate()
-            if event.key == pygame.K_s:
-                pressing_down2 = True
-            if event.key == pygame.K_a:
-                game2.go_side(-1)
-            if event.key == pygame.K_d:
-                game2.go_side(1)
-            if event.key == pygame.K_q:  # Use 'Q' for space (or any other key if you prefer)
-                game2.go_space()
+            # # Controls for the second game (using WASD keys)
+            # if event.key == pygame.K_w:
+            #     game2.rotate()
+            # if event.key == pygame.K_s:
+            #     pressing_down2 = True
+            # if event.key == pygame.K_a:
+            #     game2.go_side(-1)
+            # if event.key == pygame.K_d:
+            #     game2.go_side(1)
+            # if event.key == pygame.K_q:  # Use 'Q' for space (or any other key if you prefer)
+            #     game2.go_space()          ##redundant for the bot
 
             if event.key == pygame.K_ESCAPE:
                 game1.__init__(20, 10)
