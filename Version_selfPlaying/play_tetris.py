@@ -6,7 +6,7 @@ def main():
     tetris_game = Tetris()
     
     # Initialize players
-    ai_player = SimpleTetrisPlayer(tetris_game, render=True, delay=0.5)    
+    ai_player = SimpleTetrisPlayer(tetris_game, render=True, delay=1)    
     # You can run both players in sequence or as needed
     # Here is an example of running them in sequence
     ai_player.play_game()  # AI player plays the game
